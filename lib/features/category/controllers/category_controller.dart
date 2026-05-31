@@ -14,8 +14,6 @@ class CategoryController extends ChangeNotifier {
   final CategoryServiceInterface? categoryServiceInterface;
   CategoryController({required this.categoryServiceInterface});
 
-
-
   final List<CategoryModel> _filteredCategoryList = [];
   final List<CategoryModel> _categoryList = [];
   final List<CategoryModel> _sellerWiseCategoryList = [];
@@ -28,65 +26,65 @@ class CategoryController extends ChangeNotifier {
   int? get categorySelectedIndex => _categorySelectedIndex;
 
   Future<void> getCategoryList(bool reload) async {
-    if(_categoryList.isEmpty || reload) {
+    if (_categoryList.isEmpty || reload) {
       await DataSyncHelper.fetchAndSyncData(
-        fetchFromLocal: ()=> categoryServiceInterface!.getList(source: DataSourceEnum.local),
-        fetchFromClient: ()=> categoryServiceInterface!.getList(source: DataSourceEnum.client),
+        fetchFromLocal: () =>
+            categoryServiceInterface!.getList(source: DataSourceEnum.local),
+        fetchFromClient: () =>
+            categoryServiceInterface!.getList(source: DataSourceEnum.client),
         onResponse: (data, source) {
-          if(data != null) {
+          // ✅ two parameters: data (the list) and source (DataSourceEnum)
+          if (data != null) {
             _categoryList.clear();
-
-            data.forEach((category) => _categoryList.add(CategoryModel.fromJson(category)));
-            _categorySelectedIndex = 0;
-
-            onUpdateFilteredCategoryList(isSeller: false);
-            notifyListeners();
-
+            // Ensure data is iterable (list of categories)
+            if (data is List) {
+              data.forEach((category) =>
+                  _categoryList.add(CategoryModel.fromJson(category)));
+              _categorySelectedIndex = 0;
+              onUpdateFilteredCategoryList(isSeller: false);
+              notifyListeners();
+            }
           }
         },
       );
     }
-
   }
-
 
   void onUpdateFilteredCategoryList({required bool isSeller}) {
     _filteredCategoryList.clear();
-    _filteredCategoryList.addAll(isSeller ? _sellerWiseCategoryList : _categoryList);
+    _filteredCategoryList
+        .addAll(isSeller ? _sellerWiseCategoryList : _categoryList);
   }
 
-
-
-
   Future<void> getSellerWiseCategoryList(String slug) async {
-      ApiResponseModel apiResponse = await categoryServiceInterface!.getSellerWiseCategoryList(slug);
+    ApiResponseModel apiResponse =
+        await categoryServiceInterface!.getSellerWiseCategoryList(slug);
 
-      if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
-        _sellerWiseCategoryList.clear();
-        apiResponse.response!.data.forEach((category) => _sellerWiseCategoryList.add(CategoryModel.fromJson(category)));
+    if (apiResponse.response != null &&
+        apiResponse.response!.statusCode == 200) {
+      _sellerWiseCategoryList.clear();
+      apiResponse.response!.data.forEach((category) =>
+          _sellerWiseCategoryList.add(CategoryModel.fromJson(category)));
+    } else {
+      ApiChecker.checkApi(apiResponse);
+    }
 
-      } else {
-        ApiChecker.checkApi( apiResponse);
-      }
-
-      onUpdateFilteredCategoryList(isSeller: true);
-
-      notifyListeners();
-
+    onUpdateFilteredCategoryList(isSeller: true);
+    notifyListeners();
   }
 
   final List<int> _selectedCategoryIds = [];
   List<int> get selectedCategoryIds => _selectedCategoryIds;
 
-  void checkedToggleCategory(int index){
-    _filteredCategoryList[index].isSelected = !_filteredCategoryList[index].isSelected!;
+  void checkedToggleCategory(int index) {
+    _filteredCategoryList[index].isSelected =
+        !_filteredCategoryList[index].isSelected!;
 
-    if(_filteredCategoryList[index].isSelected ?? false) {
-      if(!_selectedCategoryIds.contains(index)) {
+    if (_filteredCategoryList[index].isSelected ?? false) {
+      if (!_selectedCategoryIds.contains(index)) {
         _selectedCategoryIds.add(index);
       }
-
-    }else {
+    } else {
       _selectedCategoryIds.remove(index);
       _onDisableSubCategorySelection(index);
     }
@@ -94,41 +92,47 @@ class CategoryController extends ChangeNotifier {
   }
 
   void _onDisableSubCategorySelection(int index) {
-    _filteredCategoryList[index].subCategories?.forEach((subCategory){
+    _filteredCategoryList[index].subCategories?.forEach((subCategory) {
       subCategory.isSelected = false;
     });
   }
 
-  void checkedToggleSubCategory(int index, int subCategoryIndex){
-    _filteredCategoryList[index].subCategories![subCategoryIndex].isSelected = !_filteredCategoryList[index].subCategories![subCategoryIndex].isSelected!;
+  void checkedToggleSubCategory(int index, int subCategoryIndex) {
+    _filteredCategoryList[index].subCategories![subCategoryIndex].isSelected =
+        !_filteredCategoryList[index]
+            .subCategories![subCategoryIndex]
+            .isSelected!;
     notifyListeners();
   }
 
   Future<void> resetChecked(String? slug, bool fromShop) async {
-    if(fromShop){
+    if (fromShop) {
       await getSellerWiseCategoryList(slug!);
-      Provider.of<BrandController>(Get.context!, listen: false).getSellerWiseBrandList(slug);
-      Provider.of<SellerProductController>(Get.context!, listen: false).getSellerProductList(slug.toString(), 1, "");
-      Provider.of<SellerProductController>(Get.context!, listen: false).setFilterApply(false);
-    }else{
+      Provider.of<BrandController>(Get.context!, listen: false)
+          .getSellerWiseBrandList(slug);
+      Provider.of<SellerProductController>(Get.context!, listen: false)
+          .getSellerProductList(slug.toString(), 1, "");
+      Provider.of<SellerProductController>(Get.context!, listen: false)
+          .setFilterApply(false);
+    } else {
       await getCategoryList(true);
-      Provider.of<BrandController>(Get.context!, listen: false).getBrandList(offset: 1);
+      Provider.of<BrandController>(Get.context!, listen: false)
+          .getBrandList(offset: 1);
     }
-
   }
 
   void onChangeSelectedIndex(int selectedIndex, {bool isUpdate = true}) {
     _categorySelectedIndex = selectedIndex;
-    if(isUpdate){
+    if (isUpdate) {
       notifyListeners();
     }
   }
 
   void uncheckSellerCategoryList() {
-    if(_filteredCategoryList.isNotEmpty) {
-      _filteredCategoryList.map((category) {category.isSelected = false;}).toList();
+    if (_filteredCategoryList.isNotEmpty) {
+      _filteredCategoryList.map((category) {
+        category.isSelected = false;
+      }).toList();
     }
   }
-
-
 }

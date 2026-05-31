@@ -1,20 +1,22 @@
 import 'package:flutter_sixvalley_ecommerce/common/enums/data_source_enum.dart';
 import 'package:flutter_sixvalley_ecommerce/data/datasource/remote/dio/dio_client.dart';
+// ... all flutter_sixvalley_ecommerce imports
 import 'package:flutter_sixvalley_ecommerce/data/datasource/remote/exception/api_error_handler.dart';
 import 'package:flutter_sixvalley_ecommerce/data/model/api_response.dart';
 import 'package:flutter_sixvalley_ecommerce/data/services/data_sync_service.dart';
 import 'package:flutter_sixvalley_ecommerce/features/category/domain/repositories/category_repo_interface.dart';
 import 'package:flutter_sixvalley_ecommerce/utill/app_constants.dart';
 
-class CategoryRepository extends DataSyncService implements CategoryRepoInterface {
+class CategoryRepository extends DataSyncService
+    implements CategoryRepoInterface {
   final DioClient? dioClient;
-  CategoryRepository({required this.dioClient, required super.dataSyncRepoInterface});
+  CategoryRepository(
+      {required this.dioClient, required super.dataSyncRepoInterface});
 
   @override
   Future<ApiResponseModel> getList({int? offset}) async {
     try {
-      final response = await dioClient!.get(
-        AppConstants.categoriesUri);
+      final response = await dioClient!.get(AppConstants.categoriesUri);
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -24,7 +26,8 @@ class CategoryRepository extends DataSyncService implements CategoryRepoInterfac
   @override
   Future<ApiResponseModel> getSellerWiseCategoryList(String slug) async {
     try {
-      final response = await dioClient!.get('${AppConstants.sellerWiseCategoryList}$slug');
+      final response =
+          await dioClient!.get('${AppConstants.sellerWiseCategoryList}$slug');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));
@@ -49,8 +52,6 @@ class CategoryRepository extends DataSyncService implements CategoryRepoInterfac
     throw UnimplementedError();
   }
 
-
-
   @override
   Future update(Map<String, dynamic> body, int id) {
     // TODO: implement update
@@ -58,7 +59,9 @@ class CategoryRepository extends DataSyncService implements CategoryRepoInterfac
   }
 
   @override
-  Future<ApiResponseModel<T>> getCategoryList<T>({required DataSourceEnum source}) async {
-    return await fetchData<T>('${AppConstants.categoriesUri}?guest_id=1',  source);
+  Future<ApiResponseModel<T>> getCategoryList<T>(
+      {required DataSourceEnum source}) async {
+    return await fetchData<T>(
+        '${AppConstants.categoriesUri}?guest_id=1', source);
   }
 }

@@ -42,7 +42,7 @@
         android:allowBackup="false"
         android:fullBackupContent="false">
 
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value='AIzaSyCJgNunTPj_oNBjSfwjRUmvaXLFp9qdaVw'; />
+       <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCJgNunTPj_oNBjSfwjRUmvaXLFp9qdaVw" />
 
         <activity
             android:name=".MainActivity"
@@ -72,6 +72,20 @@
             </intent-filter>
 
 
+             
+
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.googleusercontent.apps.1097000206369-9g4ksgbstveaud75rqm0io35ek01mj36.apps.googleusercontent.com" />
+            </intent-filter>
+
+
+
+
+
             <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
 
             <!-- Single intent filter for all deep links -->
@@ -82,7 +96,7 @@
 
                 <data android:scheme="https"/>
                 <data android:scheme="http"/>
-                <data android:host="YOUR_DOMAIN_HERE"/>
+                <data android:host="senteclick.com"/>
 
                 <data android:pathPattern="/" />
                 <data android:pathPattern="" />
