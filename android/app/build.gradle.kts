@@ -1,6 +1,5 @@
 import java.util.Properties
 import java.io.FileInputStream
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
@@ -20,17 +19,7 @@ android {
     compileSdk = 36
     ndkVersion = "28.2.13676358"
 
-    // ✅ Use Java 17 for both Java and Kotlin compilation
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-
-    // ✅ Kotlin toolchain (Java 17)
-    kotlin {
-        jvmToolchain(17)
-    }
-
+    // No need to set compileOptions or kotlinOptions here – they are forced globally
     defaultConfig {
         multiDexEnabled = true
         applicationId = "com.techsate.senteclick"
