@@ -2,7 +2,6 @@ import java.util.Properties
 import java.io.FileInputStream
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -12,7 +11,6 @@ plugins {
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
-
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
@@ -21,27 +19,19 @@ android {
     namespace = "com.techsate.senteclick"
     compileSdk = 36
     ndkVersion = "28.2.13676358"
-    
-    
 
-    kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_11)
-        freeCompilerArgs.addAll(listOf("-Xskip-metadata-version-check"))
-    }
-}
-
-
+    // ✅ Use Java 17 for both Java and Kotlin compilation
     compileOptions {
-        isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
-    
+    // ✅ Kotlin toolchain (Java 17)
+    kotlin {
+        jvmToolchain(17)
+    }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         multiDexEnabled = true
         applicationId = "com.techsate.senteclick"
         minSdk = flutter.minSdkVersion
@@ -49,6 +39,7 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
+
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String?
@@ -60,7 +51,7 @@ android {
 
     buildTypes {
         getByName("release") {
-            signingConfig = signingConfigs.getByName("release") // or "release" if you have real keystore
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 }
