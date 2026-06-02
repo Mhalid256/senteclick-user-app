@@ -4,6 +4,8 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      vars:
+        GRADLE_OPTS: "-Xmx4g -Xms2g"
     scripts:
       - flutter pub get
       - flutter build apk --release --no-tree-shake-icons
