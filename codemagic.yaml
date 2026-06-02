@@ -5,9 +5,10 @@ workflows:
       flutter: stable
       xcode: latest
       vars:
-        GRADLE_OPTS: "-Xmx4g -Xms2g"
+        GRADLE_OPTS: "-Xmx4g -Xms2g"   # <-- Add this line
     scripts:
+      - flutter clean
       - flutter pub get
       - flutter build appbundle --release --no-tree-shake-icons
     artifacts:
-      - build/**/outputs/**/*.apk
+      - build/**/outputs/**/*.aab
