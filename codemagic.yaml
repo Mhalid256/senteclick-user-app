@@ -8,6 +8,6 @@ workflows:
         GRADLE_OPTS: "-Xmx4g -Xms2g"
     scripts:
       - flutter pub get
-      - flutter build apk --release --no-tree-shake-icons
+      - flutter build appbundle --release --no-tree-shake-icons
     artifacts:
       - build/**/outputs/**/*.apk
