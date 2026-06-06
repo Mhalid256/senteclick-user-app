@@ -15,15 +15,27 @@ allprojects {
         google()
         mavenCentral()
     }
-    // Force Java 17 for all Java compilation tasks (including plugins)
-    tasks.withType<JavaCompile>().configureEach {
-        sourceCompatibility = JavaVersion.VERSION_17.toString()
-        targetCompatibility = JavaVersion.VERSION_17.toString()
-    }
-    // Force JVM target 17 for all Kotlin compilation tasks
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = "17"
+}
+
+// Force Java 17 toolchain and Kotlin JVM target for every subproject
+subprojects {
+    afterEvaluate {
+        // For Java compilation tasks
+        tasks.withType<JavaCompile>().configureEach {
+            options.compilerArgs.addAll(listOf("-source", "17", "-target", "17"))
+            sourceCompatibility = "17"
+            targetCompatibility = "17"
+        }
+        // For Kotlin compilation tasks
+        tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+        // Apply Android toolchain if present
+        extensions.findByType(com.android.build.gradle.BaseExtension::class.java)?.compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
         }
     }
 }
