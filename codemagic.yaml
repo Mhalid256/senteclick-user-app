@@ -4,7 +4,7 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      java: 17               # <-- Add this line
+      java: 17
     scripts:
       - flutter clean
       - flutter pub get
