@@ -4,10 +4,8 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      vars:
-        GRADLE_OPTS: "-Xmx6g -Xms2g"
+      java: 17               # <-- Add this line
     scripts:
-      - echo "org.gradle.jvmargs=-Xmx6g -Xms2g" >> android/gradle.properties
       - flutter clean
       - flutter pub get
       - flutter build appbundle --release --no-tree-shake-icons
