@@ -1,7 +1,6 @@
 import java.util.Properties
 import java.io.FileInputStream
 
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -11,7 +10,6 @@ plugins {
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
-
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
@@ -19,6 +17,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.techsate.senteclick"
     compileSdk = 36
+    ndkVersion = "28.2.13676358"   // ✅ Fix NDK version mismatch
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -26,15 +25,13 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-     kotlin {
+    kotlin {
         compilerOptions {
             jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
         }
     }
 
-
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         multiDexEnabled = true
         applicationId = "com.techsate.senteclick"
         minSdk = flutter.minSdkVersion
@@ -42,18 +39,30 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
+
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String?
-            keyPassword = keystoreProperties["keyPassword"] as String?
-            storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
-            storePassword = keystoreProperties["storePassword"] as String?
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"] as? String
+                keyPassword = keystoreProperties["keyPassword"] as? String
+                storeFile = keystoreProperties["storeFile"]?.let { file(it.toString()) }
+                storePassword = keystoreProperties["storePassword"] as? String
+            } else {
+                // Fallback to debug signing (only for local testing, never for release)
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+                storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
+                storePassword = "android"
+            }
         }
     }
 
     buildTypes {
         getByName("release") {
-            signingConfig = signingConfigs.getByName("release") // or "release" if you have real keystore
+            signingConfig = signingConfigs.getByName("release")
+            // You can enable proguard/minify later if needed:
+            // isMinifyEnabled = true
+            // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
@@ -66,26 +75,3 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     implementation("com.google.firebase:firebase-messaging:23.4.1")
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
