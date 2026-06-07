@@ -5,7 +5,20 @@ workflows:
       flutter: stable
       xcode: latest
       java: 17
+      vars:
+        CM_KEYSTORE_BASE64: "$CM_KEYSTORE_BASE64"  # reference the env var
+        CM_KEYSTORE_PASSWORD: "$CM_KEYSTORE_PASSWORD"
+        CM_KEY_PASSWORD: "$CM_KEY_PASSWORD"
+        CM_KEY_ALIAS: "$CM_KEY_ALIAS"
     scripts:
+      - |
+        # Create keystore from base64
+        echo "$CM_KEYSTORE_BASE64" | base64 --decode > "$FCI_BUILD_DIR/android/app/upload-keystore.jks"
+        # Create key.properties
+        echo "storePassword=$CM_KEYSTORE_PASSWORD" > "$FCI_BUILD_DIR/android/key.properties"
+        echo "keyPassword=$CM_KEY_PASSWORD" >> "$FCI_BUILD_DIR/android/key.properties"
+        echo "keyAlias=$CM_KEY_ALIAS" >> "$FCI_BUILD_DIR/android/key.properties"
+        echo "storeFile=../app/upload-keystore.jks" >> "$FCI_BUILD_DIR/android/key.properties"
       - flutter clean
       - flutter pub get
       - flutter build appbundle --release --no-tree-shake-icons
