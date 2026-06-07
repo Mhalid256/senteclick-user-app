@@ -41,22 +41,36 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            if (keystorePropertiesFile.exists()) {
-                keyAlias = keystoreProperties["keyAlias"] as? String
-                keyPassword = keystoreProperties["keyPassword"] as? String
-                storeFile = keystoreProperties["storeFile"]?.let { file(it.toString()) }
-                storePassword = keystoreProperties["storePassword"] as? String
-            } else {
-                // Fallback to debug signing (only for local testing, never for release)
-                keyAlias = "androiddebugkey"
-                keyPassword = "android"
-                storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
-                storePassword = "android"
-            }
+    create("release") {
+        // First, try Codemagic's injected environment variables
+        val cmStoreFile = System.getenv("CM_KEYSTORE_PATH")
+        val cmStorePassword = System.getenv("CM_KEYSTORE_PASSWORD")
+        val cmKeyAlias = System.getenv("CM_KEY_ALIAS")
+        val cmKeyPassword = System.getenv("CM_KEY_PASSWORD")
+
+        if (!cmStoreFile.isNullOrEmpty() && cmStoreFile.isNotBlank()) {
+            keyAlias = cmKeyAlias
+            keyPassword = cmKeyPassword
+            storeFile = file(cmStoreFile)
+            storePassword = cmStorePassword
+            println("✅ Using Codemagic keystore: $cmStoreFile")
+        } else if (keystorePropertiesFile.exists()) {
+            // Fallback to local key.properties
+            keyAlias = keystoreProperties["keyAlias"] as? String
+            keyPassword = keystoreProperties["keyPassword"] as? String
+            storeFile = keystoreProperties["storeFile"]?.let { file(it.toString()) }
+            storePassword = keystoreProperties["storePassword"] as? String
+            println("✅ Using key.properties keystore")
+        } else {
+            // Debug fallback (only for local development)
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
+            storePassword = "android"
+            println("⚠️ WARNING: Using DEBUG keystore – DO NOT upload this AAB to Play Store!")
         }
     }
-
+}
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
