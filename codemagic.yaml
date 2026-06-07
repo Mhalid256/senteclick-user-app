@@ -5,7 +5,7 @@ workflows:
       flutter: stable
       java: 17
       android_signing:
-        - keystore
+        - senteclick   # ← use the exact name from the UI
     scripts:
       - flutter clean
       - flutter pub get
